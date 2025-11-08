@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Transactions</h3>
+    <button class="btn btn-matte" data-bs-toggle="modal" data-bs-target="#addTransactionModal">Add Transaction</button>
+</div>
+
+<!-- Last Transaction + Undo Button -->
+{% if latest %}
+<form method="POST" action="{{ url_for('undo_last_transaction') }}" onsubmit="return confirm('Undo this transaction?');">
+  <button type="submit" class="btn btn-success mb-3">Undo Last Transaction</button>
+</form>
+
+{% endif %}
+
+
+<!-- Search Bar -->
+<div class="mb-3">
+    <input type="text" id="searchTransaction" class="form-control" placeholder="Search by product or payment mode...">
+</div>
+
+<!-- Transactions Table -->
+<table class="table table-hover">
+    <thead class="table-light">
+        <tr>
+            <th>Date</th>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
+            <th>Payment Mode</th>
+            <th>Reference #</th>
+        </tr>
+    </thead>
+    <tbody id="transactionTable">
+        {% for t in transactions %}
+        <tr>
+            <td>{{ t.date }}</td>
+            <td>{{ t.product }}</td>
+            <td>{{ t.quantity }}</td>
+            <td>₱{{ t.price }}</td>
+            <td>₱{{ t.total }}</td>
+            <td>{{ t.payment_mode }}</td>
+            <td>{{ t.reference_number if t.reference_number else '-' }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Add Transaction Modal -->
+<div class="modal fade" id="addTransactionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Transaction</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST">
+                <div class="modal-body">
+
+                    <!-- Product Selection -->
+                    <div class="mb-3">
+                        <label for="product_name" class="form-label">Product</label>
+                        <select class="form-select" name="product_name" id="product_name" required>
+                            <option value="">Select Product</option>
+                            {% for p in products %}
+                                <option value="{{ p.name }}">{{ p.name }} (Stock: {{ p.stock }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">Quantity</label>
+                        <input type="number" class="form-control" name="quantity" id="quantity" required min="1">
+                    </div>
+
+                    <!-- Payment Mode -->
+                    <div class="mb-3">
+                        <label for="payment_mode" class="form-label">Payment Mode</label>
+                        <select class="form-select" name="payment_mode" id="payment_mode" required>
+                            <option value="Cash">Cash</option>
+                            <option value="GCash">GCash</option>
+                            <option value="PayMaya">PayMaya</option>
+                        </select>
+                    </div>
+
+                    <!-- Reference Number -->
+                    <div class="mb-3">
+                        <label for="reference_number" class="form-label">
+                            Reference Number <small class="text-muted">(Required for GCash or PayMaya)</small>
+                        </label>
+                        <input type="text" class="form-control" name="reference_number" id="reference_number">
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-matte">Add Transaction</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Optional JavaScript for search -->
+<script>
+    document.getElementById('searchTransaction').addEventListener('keyup', function () {
+        let filter = this.value.toLowerCase();
+        document.querySelectorAll('#transactionTable tr').forEach(function (row) {
+            row.style.display = row.innerText.toLowerCase().includes(filter) ? '' : 'none';
+        });
+    });
+</script>
+
+{% endblock %}

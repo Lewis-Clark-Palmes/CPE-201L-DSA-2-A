@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Reports</h3>
+
+<div class="row mt-3">
+    <div class="col-md-6 mb-3">
+        <div class="card p-3">
+            <h5>Total Products</h5>
+            <h2>{{ products|length }}</h2>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card p-3">
+            <h5>Total Stock</h5>
+            <h2>{{ products|sum(attribute='stock') }}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-3">
+    <div class="card-header">History</div>
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Product</th><th>Quantity</th><th>Total</th><th>Payment Mode</th><th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in transactions %}
+                <tr>
+                    <td>{{ t.product }}</td>
+                    <td>{{ t.quantity }}</td>
+                    <td>₱{{t.total }}</td>
+                    <td>{{ t.payment_mode }}</td>
+                    <td>{{ t.date }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
